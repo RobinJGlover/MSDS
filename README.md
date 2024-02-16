@@ -14,6 +14,7 @@ Repo to keep track of R scripts / SQL for NCARDRS MSDS Feed Project
 - Unified outcome / termination fields from various contributing fields from MSDS whilst maintaining individual fields for MSDS? or just where boiling down the multiple fields returns multiple values do we show this in the event?
 - Comment rules and where shared funcs list which fields are subject to it so user doesn't have to refer to `rationalise_fields::rationalise_data()`
 - EDD method when we calculate from gestation at birth?
+- Restructure query to pull from pregnancybooking table as that should be there whether baby table populated or not so shouldn't have to have two queries..?
 
 ## Fetuses Rules (remove zeroes)
 ### Early

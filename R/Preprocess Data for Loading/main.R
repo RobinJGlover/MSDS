@@ -10,10 +10,10 @@ source("util.r")
 source("rationalise_fields.R")
 
 
-data <- read.csv('export - 20240214.csv', na="null")
+data <- read.csv('export - mother cases for Anna.csv', na="null")
 
 data <- data %>% mutate(
-  PersonBirthDateMother = dmy(PersonBirthDateMother)
+  PersonBirthDateMother = ymd(PersonBirthDateMother)
 )
 
 output <- NA
@@ -100,6 +100,8 @@ ordered_output <- output %>% mutate(
   )
 
 View(ordered_output)
+
+write.csv(ordered_output, file="2024-02-15 Mother patients to check for Anna.csv")
 
 {
   mockData = F

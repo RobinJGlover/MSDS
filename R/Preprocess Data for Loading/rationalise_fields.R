@@ -36,7 +36,7 @@ rationalise_data <- function(data) {
     DischMethCodeMothPostDelHospProvSpell = rationalise_distinct_values_for_event_only(data, "DischMethCodeMothPostDelHospProvSpell"),
     DischargeDateMotherHosp = rationalise_distinct_values_for_event_only(data, "dischargedatemotherhosp"),
     PersonPhenSex = rationalise_distinct_values_for_event_only(data,"PersonPhenSex")
-  ) %>% filter(row_number() == 1)
+  ) %>% unique
 }
 
 rationalise_maternal_birth_date <- function(data) {

@@ -4,7 +4,7 @@ library(lubridate)
 rm(list=ls()) 
 cat("\014")  
 
-setwd("C:/Users/rogl2/OneDrive - NHS/Dev/R/MSDS/Preprocess Data")
+setwd("C:/Users/rogl2/OneDrive - NHS/Dev/R/MSDS/MSDS Project/R/Preprocess Data for Loading/")
 
 source("util.r")
 source("rationalise_fields.R")
@@ -13,7 +13,7 @@ source("rationalise_fields.R")
 data <- read.csv('export - 20240214.csv', na="null")
 
 data <- data %>% mutate(
-  PersonBirthDateMother = ymd(PersonBirthDateMother)
+  PersonBirthDateMother = dmy(PersonBirthDateMother)
 )
 
 output <- NA
@@ -22,7 +22,7 @@ unique_pregnancies <- data %>% pull(UniqPregID) %>% unique
 
 # TODO loop by mother and uniq preg id instead of just mother in case multiple of same pt pregnancies in batch
 
-for(i in 1:length(unique_pregnancies)) {
+for(i in 1:1) {
   data_for_pt  <- data %>% filter(UniqPregID == unique_pregnancies[i])
   if(nrow(data_for_pt) == 1) {
     rationalised_row <- data_for_pt

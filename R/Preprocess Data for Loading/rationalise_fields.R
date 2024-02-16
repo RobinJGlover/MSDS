@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 EDD_METHOD_PRIORITY = c(
   'Ultrasound Scan in Pregnancy dating measurements',
   'Last Menstrual Period Date (LMP) confirmed by Ultrasound Scan In Pregnancy',
@@ -12,10 +13,13 @@ FOLIC_ACID_PRIORITY = c(
 'Not Stated (Person asked but declined to provide a response)'
 )
 
+=======
+>>>>>>> bba81796710ff94715b9343818fcb5e287e6bd0a
 rationalise_data <- function(data) {
   data %>% mutate(
     PersonBirthDateMother = rationalise_maternal_birth_date(data),
     EthnicCategoryMother = rationalise_ethnic_category_mother(data),
+<<<<<<< HEAD
     BookingPostcode = rationalise_earliest_pregnancybooking_value(data,'postcode'),
     DeliveryPostcode = rationalise_delivery_postcode(data),
     AntenatalAppDate = rationalise_earliest_pregnancybooking_value(data,'AntenatalAppDate'),
@@ -28,6 +32,13 @@ rationalise_data <- function(data) {
     PreviousLiveBirths = rationalise_previous_pregnancy_counts(data, 'PreviousLiveBirths'),
     PreviousStillbirths = rationalise_previous_pregnancy_counts(data, 'PreviousStillbirths'),
     PreviousLossesLessThan24Weeks = rationalise_previous_pregnancy_counts(data, 'PreviousLossesLessThan24Weeks')
+=======
+    BookingPostcode = rationalise_booking_postcode(data),
+    DeliveryPostcode = rationalise_delivery_postcode(data),
+    EDDAgreed = rationalise_edd(data),
+    NumFetusesEarly = rationalise_fetuses_early(data),
+    NumFetusesDelivery = rationalise_fetuses_delivery(data),
+>>>>>>> bba81796710ff94715b9343818fcb5e287e6bd0a
   ) %>% filter(row_number() == 1)
 }
 
@@ -46,11 +57,16 @@ rationalise_ethnic_category_mother <- function(data) {
     return(unique_values[1])
   } else {
     # TODO remove vague ethnicities where more specific available
+<<<<<<< HEAD
 
+=======
+    print(unique_values)
+>>>>>>> bba81796710ff94715b9343818fcb5e287e6bd0a
     return(sprintf("Conflicting values: %s", paste(unique_values,collapse=", ")))
   }
 }
 
+<<<<<<< HEAD
 rationalise_delivery_postcode <- function(data) {
   # TODO make the latest md submission for pregnancy -> delivery postcode
   postcode_compare <- data %>% select(UniqPregID, pb_RPStartDate, 'postcode') %>% unique() %>% arrange(desc(pb_RPStartDate))
@@ -69,6 +85,20 @@ rationalise_distinct_values_for_event_only <- function(data, field_name) {
 rationalise_edd_by_method <- function(data, field_name) {
   compare <- data %>% select(EDDAgreed, EDDMethodAgreed) %>% unique %>% arrange(match(EDDMethodAgreed, EDD_METHOD_PRIORITY))
   return(compare %>% pull(any_of(field_name)) %>% first)
+=======
+rationalise_booking_postcode <- function(data) {
+  # TODO make the earliest md submission for pregnancy psotcode -> booking postcode
+  return(data$postcode[1])
+}
+
+rationalise_delivery_postcode <- function(data) {
+  # TODO make the latest md submission for pregnancy -> delivery postcode
+  return(data$postcode[1])
+}
+
+rationalise_edd <- function(data) {
+  return(data$EDDAgreed[1])
+>>>>>>> bba81796710ff94715b9343818fcb5e287e6bd0a
 }
 
 rationalise_fetuses_early <- function(data) {
@@ -77,6 +107,7 @@ rationalise_fetuses_early <- function(data) {
 
 rationalise_fetuses_delivery <- function(data) {
   return(1)
+<<<<<<< HEAD
 }
 
 rationalise_previous_pregnancy_counts <- function(data, field_name) {
@@ -90,3 +121,6 @@ rationalise_folic_acid_use <- function(data) {
 # TODO
 # DRY up distinct values into one method
 # Previous pregnancies info goes off earliest submission for that pregnancy as probable most accurate at booking
+=======
+}
+>>>>>>> bba81796710ff94715b9343818fcb5e287e6bd0a

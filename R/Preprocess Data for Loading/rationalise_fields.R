@@ -27,7 +27,15 @@ rationalise_data <- function(data) {
     NumFetusesDelivery = rationalise_fetuses_delivery(data),
     PreviousLiveBirths = rationalise_previous_pregnancy_counts(data, 'PreviousLiveBirths'),
     PreviousStillbirths = rationalise_previous_pregnancy_counts(data, 'PreviousStillbirths'),
-    PreviousLossesLessThan24Weeks = rationalise_previous_pregnancy_counts(data, 'PreviousLossesLessThan24Weeks')
+    PreviousLossesLessThan24Weeks = rationalise_previous_pregnancy_counts(data, 'PreviousLossesLessThan24Weeks'),
+    PersonBirthDateBaby1 = rationalise_baby_dob_lower_bound(data),
+    PersonBirthDateBaby2 = rationalise_baby_dob_upper_bound(data),
+    DischargeDateBabyHosp = rationalise_distinct_values_for_event_only(data, 'DischargeDateBabyHosp'),
+    dischargedatematservice = rationalise_distinct_values_for_event_only(data, "dischargedatematservice"),
+    DischReason = rationalise_distinct_values_for_event_only(data, "DischReason"),
+    DischMethCodeMothPostDelHospProvSpell = rationalise_distinct_values_for_event_only(data, "DischMethCodeMothPostDelHospProvSpell"),
+    DischargeDateMotherHosp = rationalise_distinct_values_for_event_only(data, "dischargedatemotherhosp"),
+    PersonPhenSex = rationalise_distinct_values_for_event_only(data,"PersonPhenSex")
   ) %>% filter(row_number() == 1)
 }
 
@@ -45,7 +53,6 @@ rationalise_ethnic_category_mother <- function(data) {
   if(length(unique_values) <= 1) {
     return(unique_values[1])
   } else {
-    # TODO remove vague ethnicities where more specific available
     return(sprintf("Conflicting values: %s", paste(unique_values,collapse=", ")))
   }
 }
@@ -86,7 +93,26 @@ rationalise_folic_acid_use <- function(data) {
   return(data %>% select(FolicAcidSupplement) %>% unique %>% remove_na_from_vector %>% arrange(match(FolicAcidSupplement, FOLIC_ACID_PRIORITY)) %>% pull(any_of(FolicAcidSupplement)) %>% first)
 }
 
-# TODO
-# DRY up distinct values into one method
-# Previous pregnancies info goes off earliest submission for that pregnancy as probable most accurate at booking
+rationalise_baby_dob_lower_bound <- function(data) {
+  uniq_dobs <- data %>% pull(PersonBirthDateBaby) %>% unique %>% remove_na_from_vector %>% sort
+  if(length(uniq_dobs) == 1) {
+    return(uniq_dobs %>% first)
+  } else {
+    # TODO figure out what we do if we have conflicting DOBs - latest row in baby table for this preg?
+    
+    # PLACEHOLDER
+    return(uniq_dobs %>% first)
+  }
+}
 
+rationalise_baby_dob_upper_bound <- function(data) {
+  uniq_dobs <- data %>% pull(PersonBirthDateBaby) %>% unique %>% remove_na_from_vector %>% sort
+  if(length(uniq_dobs) == 1) {
+    return(uniq_dobs %>% first)
+  } else {
+    # TODO figure out what we do if we have conflicting DOBs - latest row in baby table for this preg?
+    
+    # PLACEHOLDER
+    return(uniq_dobs %>% first)
+  }
+}

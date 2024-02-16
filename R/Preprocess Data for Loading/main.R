@@ -23,7 +23,7 @@ unique_pregnancies <- data %>% pull(UniqPregID) %>% unique
 # TODO loop by mother and uniq preg id instead of just mother in case multiple of same pt pregnancies in batch
 
 
-for(i in 1:1) {
+for(i in 1:length(unique_pregnancies)) {
   data_for_pt  <- data %>% filter(UniqPregID == unique_pregnancies[i])
   if(nrow(data_for_pt) == 1) {
     rationalised_row <- data_for_pt
@@ -57,20 +57,20 @@ ordered_output <- output %>% mutate(
     EDDAgreed,
     NumFetusesEarly,
     NumFetusesDelivery,
-    PreviousLiveBirths, # find max
-    PreviousStillbirths, # find max
-    PreviousLossesLessThan24Weeks, # find max
-    FolicAcidSupplement, # find most favourable answer
+    PreviousLiveBirths,
+    PreviousStillbirths, 
+    PreviousLossesLessThan24Weeks,
+    FolicAcidSupplement,
     # Baby
     NHSNumberBaby,
-    PersonBirthDateBaby1 = PersonBirthDateBaby, # Figure out range from vcarious rules
+    PersonBirthDateBaby1, # Figure out range from vcarious rules
     PersonBirthDateBaby2 = PersonBirthDateBaby,
     DischargeDateBabyHosp,
     dischargedatematservice,
     DischReason,
     DischMethCodeMothPostDelHospProvSpell,
     DischargeDateMotherHosp,
-    PersonPhenSex, # Figure out how to handle conflicts
+    PersonPhenSex,
     PregOutcome, # Mangle the various fields together to get this
     OrgSiteIDActualDelivery, # Find latest provider for this..?
     DeliveryMethodCode,

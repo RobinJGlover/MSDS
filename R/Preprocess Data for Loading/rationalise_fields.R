@@ -20,7 +20,7 @@ rationalise_data <- function(data) {
     DeliveryPostcode = rationalise_delivery_postcode(data),
     AntenatalAppDate = rationalise_earliest_pregnancybooking_value(data,'AntenatalAppDate'),
     ReasonLateBooking = rationalise_distinct_values_for_event_only(data, 'ReasonLateBooking'),
-    OrgSideIDBooking = rationalise_earliest_pregnancybooking_value(data, 'OrgSiteIDBooking'),
+    OrgSiteIDBooking = rationalise_earliest_pregnancybooking_value(data, 'OrgSiteIDBooking'),
     EDDAgreed = rationalise_edd_by_method(data, 'EDDAgreed'),
     EDDMethodAgreed = rationalise_edd_by_method(data, 'EDDMethodAgreed'),
     NumFetusesEarly = rationalise_fetuses_early(data),
@@ -28,6 +28,7 @@ rationalise_data <- function(data) {
     PreviousLiveBirths = rationalise_previous_pregnancy_counts(data, 'PreviousLiveBirths'),
     PreviousStillbirths = rationalise_previous_pregnancy_counts(data, 'PreviousStillbirths'),
     PreviousLossesLessThan24Weeks = rationalise_previous_pregnancy_counts(data, 'PreviousLossesLessThan24Weeks'),
+    FolicAcidSupplement = rationalise_folic_acid_use(data),
     PersonBirthDateBaby1 = rationalise_baby_dob_lower_bound(data),
     PersonBirthDateBaby2 = rationalise_baby_dob_upper_bound(data),
     DischargeDateBabyHosp = rationalise_distinct_values_for_event_only(data, 'DischargeDateBabyHosp'),
@@ -35,7 +36,12 @@ rationalise_data <- function(data) {
     DischReason = rationalise_distinct_values_for_event_only(data, "DischReason"),
     DischMethCodeMothPostDelHospProvSpell = rationalise_distinct_values_for_event_only(data, "DischMethCodeMothPostDelHospProvSpell"),
     DischargeDateMotherHosp = rationalise_distinct_values_for_event_only(data, "dischargedatemotherhosp"),
-    PersonPhenSex = rationalise_distinct_values_for_event_only(data,"PersonPhenSex")
+    PersonPhenSex = rationalise_distinct_values_for_event_only(data,"PersonPhenSex"),
+    PregOutcome = rationalise_distinct_values_for_event_only(data, "PregOutcome"),
+    OrgSiteIDActualDelivery = rationalise_distinct_values_for_event_only(data, "OrgSiteIDActualDelivery"),
+    birthweight = rationalise_birth_weight(data),
+    PregFirstConDate = rationalise_distinct_values_for_event_only(data, "PregFirstConDate"),
+    ovsvischcat = rationalise_distinct_values_for_event_only(data, "ovsvischcat")
   ) %>% unique
 }
 
@@ -69,7 +75,7 @@ rationalise_earliest_pregnancybooking_value <- function(data, field_name) {
 }
 
 rationalise_distinct_values_for_event_only <- function(data, field_name) {
-  return(data %>% pull(any_of(field_name)) %>% unique %>% remove_na_from_vector %>% paste(., collapse=', ')) %>% sort
+  return(data %>% pull(any_of(field_name)) %>% unique %>% remove_na_and_nil_from_vector %>% sort %>% paste(., collapse=', '))
 }
 
 rationalise_edd_by_method <- function(data, field_name) {
@@ -90,7 +96,7 @@ rationalise_previous_pregnancy_counts <- function(data, field_name) {
 }
 
 rationalise_folic_acid_use <- function(data) {
-  return(data %>% select(FolicAcidSupplement) %>% unique %>% remove_na_from_vector %>% arrange(match(FolicAcidSupplement, FOLIC_ACID_PRIORITY)) %>% pull(any_of(FolicAcidSupplement)) %>% first)
+  return(data %>% pull(FolicAcidSupplement) %>% unique %>% remove_na_from_vector %>% paste(., collapse=", "))
 }
 
 rationalise_baby_dob_lower_bound <- function(data) {
@@ -114,5 +120,20 @@ rationalise_baby_dob_upper_bound <- function(data) {
     
     # PLACEHOLDER
     return(uniq_dobs %>% first)
+  }
+}
+
+rationalise_birth_weight <- function(data) {
+  # get unique dobs from first rate column
+  uniq_wts <- data %>% pull(birthweight) %>% unique %>% remove_na_from_vector
+  if(length(uniq_wts) == 1) {
+    return(uniq_wts[1])
+  } else if(length(uniq_wts) > 1) {
+    return (paste(uniq_wts, collapse=", "))
+  } else {
+    # If no weights in first rate column, get from observations entries
+    uniq_wts_obs <- data %>% select(MasterSnomedCTObsTerm, obsvalue, ucumunit) %>% filter(!is.na(obsvalue))
+    if(nrow(uniq_wts_obs) == 0) return (NA)
+    error("Handle observation value weights in g + kg & multiples")
   }
 }

@@ -84,7 +84,11 @@ rationalise_edd_by_method <- function(data, field_name) {
 }
 
 rationalise_fetuses_early <- function(data) {
-  return(1)
+  max_by_NoFetuses = data %>% pull(NoFetusesDatingUltrasound) %>% max
+  max_by_LocalFetalID = data %>% pull(LocalFetalID) %>% remove_na_and_nil_from_vector %>% unique %>% length
+  max_by_FetalOrder = data %>% pull(FetalOrder) %>% remove_na_and_nil_from_vector %>% unique %>% length
+  
+  return(max(max_by_NoFetuses, max_by_LocalFetalID, max_by_FetalOrder, na.rm=T))
 }
 
 rationalise_fetuses_delivery <- function(data) {

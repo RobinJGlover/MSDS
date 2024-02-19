@@ -12,7 +12,9 @@ source("util.r")
 source("rationalise_fields.R")
 
 
-data <- read.csv('TESTING.csv', na = "null")
+data <- read.csv('TESTING 20240219.csv', na = "null")
+
+original_data <- data
 
 output <- NA
 
@@ -45,7 +47,11 @@ ordered_output <- output %>%
     ReasonLateBooking,
     OrgSiteIDBooking,
     EDDAgreed,
-    NumFetusesEarly
+    NumFetusesEarly,
+    NumFetusesDelivery,
+    PreviousLiveBirths,
+    PreviousStillbirths,
+    PreviousLossesLessThan24Weeks
   ) %>% unique
 
 columns <- colnames(ordered_output)

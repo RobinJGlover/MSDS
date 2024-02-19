@@ -92,7 +92,11 @@ rationalise_fetuses_early <- function(data) {
 }
 
 rationalise_fetuses_delivery <- function(data) {
-  return(1)
+  max_by_NoDeliveries = data %>% pull(BirthsPerLabandDel) %>% max
+  max_by_LabourDeliveryID = data %>% pull(LabourDeliveryID) %>% remove_na_and_nil_from_vector %>% unique %>% length
+  max_by_LocalFetalID = data %>% pull(LocalFetalID_delivery) %>% remove_na_and_nil_from_vector %>% unique %>% length
+  max_by_BNHSNos = original_data %>% filter(UniqPregID == data$UniqPregID[1]) %>% pull(NHSNumberBaby) %>% remove_na_and_nil_from_vector %>% unique %>% length
+  return(max(max_by_NoDeliveries, max_by_LabourDeliveryID, max_by_LocalFetalID, max_by_BNHSNos,na.rm=T))
 }
 
 rationalise_previous_pregnancy_counts <- function(data, field_name) {

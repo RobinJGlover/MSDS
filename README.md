@@ -3,6 +3,7 @@
 Repo to keep track of R scripts / SQL for NCARDRS MSDS Feed Project
 
 ## TODO / QUERIES
+- Add in a unique MSDS ID column, this will be UniqPregID + digits of baby nhs or just UniqPregID when no baby nhs. Seperate by under or slash or whatever
 - Clear up ethnicity if more specific available
 - When finding previous pregnancy counts, do we want to exclude zeroes? (currently returning earliest submitted value)
 - Conflicting baby DOB rule?

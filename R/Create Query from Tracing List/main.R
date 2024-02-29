@@ -195,3 +195,5 @@ left join mat_pre_clear.msd301labourdelivery ld on c.UniqPregID = ld.UniqPregID
 left join mat_pre_clear.msd405careactivitybaby cab on bd.Person_ID_baby = cab.Person_ID_Baby and (cab.birthweight is not null or cab.MasterSnomedCTObsTerm = 'Birth weight (observable entity)')
 left join mat_pre_clear.msd402neonataladmission na on pb.UniqPregID = na.UniqPregID")
 writeClipboard(query)
+
+print(query)

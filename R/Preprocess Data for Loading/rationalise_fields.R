@@ -31,31 +31,71 @@ rationalise_data <- function(data) {
     FolicAcidSupplement = rationalise_folic_acid_use(data),
     PersonBirthDateBaby1 = rationalise_baby_dob_lower_bound(data),
     PersonBirthDateBaby2 = rationalise_baby_dob_upper_bound(data),
-    DischargeDateBabyHosp = rationalise_distinct_values_for_event_only(data, 'DischargeDateBabyHosp'),
+    DischargeDateBabyHosp = rationalise_earliest_pregnancybooking_value(data, 'DischargeDateBabyHosp'),
     dischargedatematservice = rationalise_distinct_values_for_event_only(data, "dischargedatematservice"),
     DischReason = rationalise_distinct_values_for_event_only(data, "DischReason"),
     DischMethCodeMothPostDelHospProvSpell = rationalise_distinct_values_for_event_only(data, "DischMethCodeMothPostDelHospProvSpell"),
     DischargeDateMotherHosp = rationalise_distinct_values_for_event_only(data, "dischargedatemotherhosp"),
     PersonPhenSex = rationalise_distinct_values_for_event_only(data,"PersonPhenSex"),
     PregOutcome = rationalise_distinct_values_for_event_only(data, "PregOutcome"),
-    OrgSiteIDActualDelivery = rationalise_distinct_values_for_event_only(data, "OrgSiteIDActualDelivery"),
+    OrgSiteIDActualDelivery = rationalise_earliest_pregnancybooking_value(data, "OrgSiteIDActualDelivery"),
+    DeliveryMethodCode = rationalise_distinct_values_for_event_only(data, 'DeliveryMethodCode'),
     birthweight = rationalise_birth_weight(data),
-    PregFirstConDate = rationalise_distinct_values_for_event_only(data, "PregFirstConDate"),
-    ovsvischcat = rationalise_distinct_values_for_event_only(data, "ovsvischcat")
+    PregFirstConDate = rationalise_earliest_pregnancybooking_value(data, "PregFirstConDate"),
+    LeadAnteProvider = rationalise_distinct_values_for_event_only(data, 'LeadAnteProvider'),
+    OrgIDProvOrigin = rationalise_distinct_values_for_event_only(data, 'OrgIDProvOrigin'),
+    OrgIDRecv = rationalise_distinct_values_for_event_only(data, 'OrgIDRecv'),
+    LastMenstrualPeriodDate = rationalise_earliest_pregnancybooking_value(data, 'LastMenstrualPeriodDate'),
+    ActivityOfferDateUltrasound = rationalise_distinct_values_for_event_only(data,"ActivityOfferDateUltrasound"),
+    OfferStatusDatingUltrasound = rationalise_distinct_values_for_event_only(data, "OfferStatusDatingUltrasound"),
+    ProcedureDateDatingUltrasound = rationalise_distinct_values_for_event_only(data, "ProcedureDateDatingUltrasound"),
+    OrgIDDatingUltrasound = rationalise_distinct_values_preserving_blanks(data, 'OrgIDDatingUltrasound'),
+    BirthOrderMaternitySUS = rationalise_blank_if_conflicting(data, 'BirthOrderMaternitySUS'),
+    PersonBirthTimeBaby = rationalise_blank_if_conflicting(data, 'PersonBirthTimeBaby'),
+    PersonDeathDateBaby = rationalise_blank_if_conflicting(data, 'PersonDeathDateBaby'),
+    PersonDeathTimeBaby = rationalise_blank_if_conflicting(data, 'PersonDeathTimeBaby'),
+    ovsvischcat = rationalise_distinct_values_for_event_only(data, "ovsvischcat"),
+    NeonatalTransferStartDate = rationalise_distinct_values_preserving_blanks(data, 'NeonatalTransferStartDate'),
+    NeonatalTransferStartTime = rationalise_distinct_values_preserving_blanks(data, 'NeonatalTransferStartTime'),
+    OrgSiteIDAdmittingNeonatal = rationalise_distinct_values_preserving_blanks(data, 'OrgSiteIDAdmittingNeonatal'),
+    NeoCritCareInd = rationalise_distinct_values_preserving_blanks(data, 'NeoCritCareInd'),
+    Mother_PatientID = 'placeholder',
+    Baby_PatientID = 'placeholder',
+    PregnancyID = 'placeholder'
   ) %>% unique
 }
 
 rationalise_maternal_birth_date <- function(data) {
   unique_values <- data %>% pull(PersonBirthDateMother) %>% unique
-  if(length(unique_values) == 1) {
-    return(unique_values[1])
-  } else {
-    return(max(unique_values))
-  }
+  return(max(unique_values))
 }
 
 rationalise_ethnic_category_mother <- function(data) {
   unique_values <- data %>% pull(EthnicCategoryMother) %>% unique(.) %>% remove_na_from_vector(.) %>% sort()
+  if('0' %in% unique_values || 'G' %in% unique_values || 'L' %in% unique_values || 'P' %in% unique_values) {
+    unique_values <- unique_values[!unique_values %in% c('S')]
+  }
+  
+  if('A' %in% unique_values || 'B' %in% unique_values) {
+    unique_values <- unique_values[!unique_values %in% c('0','C','S')]
+  }
+  
+  if('C' %in% unique_values) {
+    unique_values <- unique_values[!unique_values %in% c('0','S')]
+  }
+  
+  if('D' %in% unique_values || 'E' %in% unique_values || 'F' %in% unique_values) {
+    unique_values <- unique_values[!unique_values %in% c('G','S')]
+  }
+  
+  if('H' %in% unique_values || 'J' %in% unique_values || 'K' %in% unique_values || 'R' %in% unique_values) {
+    unique_values <- unique_values[!unique_values %in% c('L','S')]
+  }
+  
+  if('M' %in% unique_values || 'N' %in% unique_values) {
+    unique_values <- unique_values[!unique_values %in% c('P','S')]
+  }
+  
   if(length(unique_values) <= 1) {
     return(unique_values[1])
   } else {
@@ -64,7 +104,6 @@ rationalise_ethnic_category_mother <- function(data) {
 }
 
 rationalise_delivery_postcode <- function(data) {
-  # TODO make the latest md submission for pregnancy -> delivery postcode
   postcode_compare <- data %>% select(UniqPregID, pb_RPStartDate, 'postcode') %>% unique() %>% arrange(desc(pb_RPStartDate))
   return(postcode_compare$postcode[1])
 }
@@ -76,6 +115,10 @@ rationalise_earliest_pregnancybooking_value <- function(data, field_name) {
 
 rationalise_distinct_values_for_event_only <- function(data, field_name) {
   return(data %>% pull(any_of(field_name)) %>% unique %>% remove_na_and_nil_from_vector %>% sort %>% paste(., collapse=', '))
+}
+
+rationalise_distinct_values_preserving_blanks <- function(data, field_name) {
+  return(data %>% pull(any_of(field_name)) %>% paste(., collapse=', ') %>% gsub('NA', '', ., fixed=T))
 }
 
 rationalise_edd_by_method <- function(data, field_name) {
@@ -104,7 +147,7 @@ rationalise_previous_pregnancy_counts <- function(data, field_name) {
 }
 
 rationalise_folic_acid_use <- function(data) {
-  return(data %>% pull(FolicAcidSupplement) %>% unique %>% remove_na_from_vector %>% paste(., collapse=", "))
+  return(data %>% select(FolicAcidSupplement) %>% unique %>% arrange(match(FolicAcidSupplement, FOLIC_ACID_PRIORITY)) %>% pull(FolicAcidSupplement) %>% first)
 }
 
 rationalise_baby_dob_lower_bound <- function(data) {
@@ -144,4 +187,12 @@ rationalise_birth_weight <- function(data) {
     if(nrow(uniq_wts_obs) == 0) return (NA)
     error("Handle observation value weights in g + kg & multiples")
   }
+}
+
+rationalise_blank_if_conflicting <- function(data, field_name) {
+  unique_values <- data %>% pull(any_of(field_name)) %>% remove_na_and_nil_from_vector %>% unique
+  if(length(unique_values)>1) {
+    return(NA)
+  }
+  return(unique_values[1])
 }

@@ -1,25 +1,27 @@
 EDD_METHOD_PRIORITY = c(
-  'Ultrasound Scan in Pregnancy dating measurements',
-  'Last Menstrual Period Date (LMP) confirmed by Ultrasound Scan In Pregnancy',
-  'Last Menstrual Period (LMP) Date as stated by the mother',
-  'Clinical assessment'
+  '03', # Ultrasound Scan in Pregnancy dating measurements
+  '02', # Last Menstrual Period Date (LMP) confirmed by Ultrasound Scan In Pregnancy
+  '01', # Last Menstrual Period (LMP) Date as stated by the mother
+  '04'  # Clinical assessment
 )
 
 FOLIC_ACID_PRIORITY = c(
-  'Has been taking prior to becoming pregnant',
-'Started taking once pregnancy confirmed',
-'Not taking folic acid supplement',
-'Not Stated (Person asked but declined to provide a response)'
+  '01', # Has been taking prior to becoming pregnant
+  '02', # Started taking once pregnancy confirmed'
+  '03', # Not taking folic acid supplement
+  '04'  # Not Stated (Person asked but declined to provide a response)
 )
 
 rationalise_data <- function(data) {
   data %>% mutate(
+    NHSNumberMother = rationalise_distinct_values(data, "NHSNumberMother"),
+    NHSNumberBaby = rationalise_distinct_values(data,'NHSNumberBaby'),
     PersonBirthDateMother = rationalise_maternal_birth_date(data),
     EthnicCategoryMother = rationalise_ethnic_category_mother(data),
     BookingPostcode = rationalise_earliest_pregnancybooking_value(data,'postcode'),
     DeliveryPostcode = rationalise_delivery_postcode(data),
     AntenatalAppDate = rationalise_earliest_pregnancybooking_value(data,'AntenatalAppDate'),
-    ReasonLateBooking = rationalise_distinct_values_for_event_only(data, 'ReasonLateBooking'),
+    ReasonLateBooking = rationalise_distinct_values(data, 'ReasonLateBooking'),
     OrgSiteIDBooking = rationalise_earliest_pregnancybooking_value(data, 'OrgSiteIDBooking'),
     EDDAgreed = rationalise_edd_by_method(data, 'EDDAgreed'),
     EDDMethodAgreed = rationalise_edd_by_method(data, 'EDDMethodAgreed'),
@@ -32,29 +34,29 @@ rationalise_data <- function(data) {
     PersonBirthDateBaby1 = rationalise_baby_dob_lower_bound(data),
     PersonBirthDateBaby2 = rationalise_baby_dob_upper_bound(data),
     DischargeDateBabyHosp = rationalise_earliest_pregnancybooking_value(data, 'DischargeDateBabyHosp'),
-    dischargedatematservice = rationalise_distinct_values_for_event_only(data, "dischargedatematservice"),
-    DischReason = rationalise_distinct_values_for_event_only(data, "DischReason"),
-    DischMethCodeMothPostDelHospProvSpell = rationalise_distinct_values_for_event_only(data, "DischMethCodeMothPostDelHospProvSpell"),
-    DischargeDateMotherHosp = rationalise_distinct_values_for_event_only(data, "dischargedatemotherhosp"),
-    PersonPhenSex = rationalise_distinct_values_for_event_only(data,"PersonPhenSex"),
-    PregOutcome = rationalise_distinct_values_for_event_only(data, "PregOutcome"),
+    dischargedatematservice = rationalise_distinct_values(data, "dischargedatematservice"),
+    DischReason = rationalise_distinct_values(data, "DischReason"),
+    DischMethCodeMothPostDelHospProvSpell = rationalise_distinct_values(data, "DischMethCodeMothPostDelHospProvSpell"),
+    DischargeDateMotherHosp = rationalise_distinct_values(data, "dischargedatemotherhosp"),
+    PersonPhenSex = rationalise_distinct_values(data,"PersonPhenSex"),
+    PregOutcome = rationalise_distinct_values(data, "PregOutcome"),
     OrgSiteIDActualDelivery = rationalise_earliest_pregnancybooking_value(data, "OrgSiteIDActualDelivery"),
-    DeliveryMethodCode = rationalise_distinct_values_for_event_only(data, 'DeliveryMethodCode'),
+    DeliveryMethodCode = rationalise_distinct_values(data, 'DeliveryMethodCode'),
     birthweight = rationalise_birth_weight(data),
     PregFirstConDate = rationalise_earliest_pregnancybooking_value(data, "PregFirstConDate"),
-    LeadAnteProvider = rationalise_distinct_values_for_event_only(data, 'LeadAnteProvider'),
-    OrgIDProvOrigin = rationalise_distinct_values_for_event_only(data, 'OrgIDProvOrigin'),
-    OrgIDRecv = rationalise_distinct_values_for_event_only(data, 'OrgIDRecv'),
+    LeadAnteProvider = rationalise_distinct_values(data, 'LeadAnteProvider'),
+    OrgIDProvOrigin = rationalise_distinct_values(data, 'OrgIDProvOrigin'),
+    OrgIDRecv = rationalise_distinct_values(data, 'OrgIDRecv'),
     LastMenstrualPeriodDate = rationalise_earliest_pregnancybooking_value(data, 'LastMenstrualPeriodDate'),
-    ActivityOfferDateUltrasound = rationalise_distinct_values_for_event_only(data,"ActivityOfferDateUltrasound"),
-    OfferStatusDatingUltrasound = rationalise_distinct_values_for_event_only(data, "OfferStatusDatingUltrasound"),
-    ProcedureDateDatingUltrasound = rationalise_distinct_values_for_event_only(data, "ProcedureDateDatingUltrasound"),
+    ActivityOfferDateUltrasound = rationalise_distinct_values(data,"ActivityOfferDateUltrasound"),
+    OfferStatusDatingUltrasound = rationalise_distinct_values(data, "OfferStatusDatingUltrasound"),
+    ProcedureDateDatingUltrasound = rationalise_distinct_values(data, "ProcedureDateDatingUltrasound"),
     OrgIDDatingUltrasound = rationalise_distinct_values_preserving_blanks(data, 'OrgIDDatingUltrasound'),
     BirthOrderMaternitySUS = rationalise_blank_if_conflicting(data, 'BirthOrderMaternitySUS'),
     PersonBirthTimeBaby = rationalise_blank_if_conflicting(data, 'PersonBirthTimeBaby'),
     PersonDeathDateBaby = rationalise_blank_if_conflicting(data, 'PersonDeathDateBaby'),
     PersonDeathTimeBaby = rationalise_blank_if_conflicting(data, 'PersonDeathTimeBaby'),
-    ovsvischcat = rationalise_distinct_values_for_event_only(data, "ovsvischcat"),
+    ovsvischcat = rationalise_distinct_values(data, "OvsVisChCat"),
     NeonatalTransferStartDate = rationalise_distinct_values_preserving_blanks(data, 'NeonatalTransferStartDate'),
     NeonatalTransferStartTime = rationalise_distinct_values_preserving_blanks(data, 'NeonatalTransferStartTime'),
     OrgSiteIDAdmittingNeonatal = rationalise_distinct_values_preserving_blanks(data, 'OrgSiteIDAdmittingNeonatal'),
@@ -72,6 +74,9 @@ rationalise_maternal_birth_date <- function(data) {
 
 rationalise_ethnic_category_mother <- function(data) {
   unique_values <- data %>% pull(EthnicCategoryMother) %>% unique(.) %>% remove_na_from_vector(.) %>% sort()
+  
+  unique_values <- unique_values[!unique_values %in% c('X', 'Z', '99')]
+  
   if('0' %in% unique_values || 'G' %in% unique_values || 'L' %in% unique_values || 'P' %in% unique_values) {
     unique_values <- unique_values[!unique_values %in% c('S')]
   }
@@ -113,7 +118,7 @@ rationalise_earliest_pregnancybooking_value <- function(data, field_name) {
   return(compare %>% pull(any_of(field_name)) %>% first)
 }
 
-rationalise_distinct_values_for_event_only <- function(data, field_name) {
+rationalise_distinct_values <- function(data, field_name) {
   return(data %>% pull(any_of(field_name)) %>% unique %>% remove_na_and_nil_from_vector %>% sort %>% paste(., collapse=', '))
 }
 
@@ -137,7 +142,7 @@ rationalise_fetuses_early <- function(data) {
 rationalise_fetuses_delivery <- function(data) {
   max_by_NoDeliveries = data %>% pull(BirthsPerLabandDel) %>% max
   max_by_LabourDeliveryID = data %>% pull(LabourDeliveryID) %>% remove_na_and_nil_from_vector %>% unique %>% length
-  max_by_LocalFetalID = data %>% pull(LocalFetalID_delivery) %>% remove_na_and_nil_from_vector %>% unique %>% length
+  max_by_LocalFetalID = data %>% pull(LocalFetalID_baby) %>% remove_na_and_nil_from_vector %>% unique %>% length
   max_by_BNHSNos = original_data %>% filter(UniqPregID == data$UniqPregID[1]) %>% pull(NHSNumberBaby) %>% remove_na_and_nil_from_vector %>% unique %>% length
   return(max(max_by_NoDeliveries, max_by_LabourDeliveryID, max_by_LocalFetalID, max_by_BNHSNos,na.rm=T))
 }
@@ -185,7 +190,7 @@ rationalise_birth_weight <- function(data) {
     # If no weights in first rate column, get from observations entries
     uniq_wts_obs <- data %>% select(MasterSnomedCTObsTerm, obsvalue, ucumunit) %>% filter(!is.na(obsvalue))
     if(nrow(uniq_wts_obs) == 0) return (NA)
-    error("Handle observation value weights in g + kg & multiples")
+    return (paste(unique(uniq_wts_obs$obsvalue), collapse=', '))
   }
 }
 

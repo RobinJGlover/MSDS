@@ -9,4 +9,3 @@ Repo to keep track of R scripts / SQL for NCARDRS MSDS Feed Project
 - Dry up distinct values into one method
 - Dry up `unique %>% remove from vec %>% sort`
 - Comment rules and where shared funcs list which fields are subject to it so user doesn't have to refer to `rationalise_fields::rationalise_data()`
-- EDD method when we calculate from gestation at birth?

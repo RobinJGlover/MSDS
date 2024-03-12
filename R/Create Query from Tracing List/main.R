@@ -1,10 +1,18 @@
 library(dplyr)
+library(lubridate)
 
 setwd("C:/Users/rogl2/OneDrive - NHS/Dev/R/MSDS/MSDS Project/R/Create Query from Tracing List")
 
-list <- read.csv("NDRSI-398 BADGER.csv") %>% mutate(
+list <- read.csv("NDRSI-398 PREG_LOSS HES.csv") %>% mutate(
   mother_query_portion = case_when(
-    !is.na(Mother.NHS) & !is.na(EDD) ~ sprintf('(pb.Person_ID_Mother = %s and pb.EDDAgreed = %s)', Mother.NHS, EDD)
+    !is.na(Mother.NHS) & !is.na(EDD) ~ sprintf("(pb.Person_ID_Mother = %s and abs(datediff(pb.EDDAgreed,'%s'::date)) < 30)", Mother.NHS, format(dmy(EDD), '%Y-%m-%d'))
+  ),
+  mother_query_portion_2 = case_when(
+    !is.na(Mother.NHS) & !is.na(Antenatal.Date) ~ sprintf("(pb.Person_ID_Mother = %s and '%s'::date between pb.AntenatalAppDate and pb.EDDAgreed)", Mother.NHS, format(dmy(Antenatal.Date), '%Y-%m-%d'))
+  ),
+  mother_query_portion = case_when(
+    !is.na(mother_query_portion) ~ mother_query_portion,
+    T ~ mother_query_portion_2
   )
 )
 

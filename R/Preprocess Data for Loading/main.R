@@ -17,7 +17,11 @@ source("rationalise_fields.R")
 {
   #original_data <- read.csv('NDRSI-398 BADGER - output.csv', na = "null")
   original_data <-
-    read.csv('NDRSI-398 BADGER - output.csv', na = "null")
+    read.csv('TESTING.csv', na = "null") %>% mutate(
+      preserved_pregnancy_id = UniqPregID,
+      PersonBirthDateBaby = parse_date_time(PersonBirthDateBaby, c('dmy','ymd')),
+      PersonBirthDateMother = parse_date_time(PersonBirthDateMother, c('dmy','ymd'))
+    )
   
   data <- original_data[0, ]
   
@@ -77,6 +81,25 @@ ordered_output <- output %>%
     AntenatalAppDate,
     ReasonLateBooking,
     OrgSiteIDBooking,
+    EDDAgreed,
+    NumFetusesEarly,
+    NumFetusesDelivery,
+    PreviousLiveBirths,
+    PreviousStillbirths,
+    PreviousLossesLessThan24Weeks,
+    FolicAcidSupplement,
+    NHSNumberBaby,
+    # BREAK
+    DischargeDateBabyHosp,
+    dischargedatematservice,
+    DischReason,
+    DischMethCodeMothPostDelHospProvSpell,
+    DischargeDateMotherHosp,
+    PersonPhenSex,
+    PregOutcome,
+    # BREAK
+    EDDMethodAgreed,
+    # BREAK
     Mother_PatientID,
     Baby_PatientID,
     PregnancyID,
@@ -93,7 +116,7 @@ if (nrow(ordered_output) > distinct_preg_ids_in_ordered_output) {
 } else if (nrow(ordered_output) == distinct_preg_ids_in_ordered_output) {
   benchmark_end <- Sys.time()
   time_taken <- benchmark_end - benchmark_start
-  print(sprintf("[Success] %s unique pregnancies preprocessed in: %s seconds (%s seconds per pregnancy on average)", length(unique_pregnancies), round(time_taken), round((time_taken)/length(unique_pregnancies), digits=2)))
+  print(sprintf("[Success] %s unique pregnancies preprocessed in: %s seconds (%s seconds per pregnancy on average)", length(unique_pregnancies), round(time_taken, digits=1), round((time_taken)/length(unique_pregnancies), digits=2)))
   print("[Success] No QA issues identified.")
   View(ordered_output)
 } else {

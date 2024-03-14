@@ -14,6 +14,8 @@ setwd(
 source("util.r")
 source("rationalise_fields.R")
 
+# TODO order complex attributes by report submission date.
+
 {
   #original_data <- read.csv('NDRSI-398 BADGER - output.csv', na = "null")
   original_data <-
@@ -98,7 +100,25 @@ ordered_output <- output %>%
     PersonPhenSex,
     PregOutcome,
     # BREAK
+    DeliveryMethodCode,
+    # BREAK
+    PregFirstConDate,
+    LeadAnteProvider,
+    OrgIDProvOrigin,
+    OrgIDRecv,
+    LastMenstrualPeriodDate,
     EDDMethodAgreed,
+    # BREAK
+    BirthOrderMaternitySUS,
+    SettingPlaceBirth,
+    PersonBirthTimeBaby,
+    PersonDeathDateBaby,
+    PersonDeathTimeBaby,
+    OvsVisChCat,
+    NeonatalTransferStartDate,
+    NeonatalTransferStartTime,
+    OrgSiteIDAdmittingNeonatal,
+    NeoCritCareInd,
     # BREAK
     Mother_PatientID,
     Baby_PatientID,

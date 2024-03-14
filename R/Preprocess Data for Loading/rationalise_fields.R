@@ -40,26 +40,27 @@ rationalise_data <- function(data) {
     PersonPhenSex = rationalise_blank_if_conflicting(data,"PersonPhenSex"),
     PregOutcome = rationalise_distinct_values_per_pregnancy(data, "PregOutcome"),
     OrgSiteIDActualDelivery = rationalise_earliest_submission_per_pregnancy(data, "OrgSiteIDActualDelivery"),
-    DeliveryMethodCode = rationalise_distinct_values(data, 'DeliveryMethodCode'),
+    DeliveryMethodCode = rationalise_and_map_delivery_method(data),
     birthweight = rationalise_birth_weight(data),
     PregFirstConDate = rationalise_earliest_submission_per_pregnancy(data, "PregFirstConDate"),
-    LeadAnteProvider = rationalise_distinct_values(data, 'LeadAnteProvider'),
-    OrgIDProvOrigin = rationalise_distinct_values(data, 'OrgIDProvOrigin'),
-    OrgIDRecv = rationalise_distinct_values(data, 'OrgIDRecv'),
+    LeadAnteProvider = rationalise_distinct_values_per_pregnancy(data, 'LeadAnteProvider'),
+    OrgIDProvOrigin = rationalise_distinct_values_per_pregnancy(data, 'OrgIDProvOrigin'),
+    OrgIDRecv = rationalise_distinct_values_per_pregnancy(data, 'OrgIDRecv'),
     LastMenstrualPeriodDate = rationalise_earliest_submission_per_pregnancy(data, 'LastMenstrualPeriodDate'),
     ActivityOfferDateUltrasound = rationalise_distinct_values(data,"ActivityOfferDateUltrasound"),
     OfferStatusDatingUltrasound = rationalise_distinct_values(data, "OfferStatusDatingUltrasound"),
     ProcedureDateDatingUltrasound = rationalise_distinct_values(data, "ProcedureDateDatingUltrasound"),
     OrgIDDatingUltrasound = rationalise_distinct_values_preserving_blanks(data, 'OrgIDDatingUltrasound'),
     BirthOrderMaternitySUS = rationalise_blank_if_conflicting(data, 'BirthOrderMaternitySUS'),
+    SettingPlaceBirth = rationalise_earliest_submission_per_baby(data, 'SettingPlaceBirth'),
     PersonBirthTimeBaby = rationalise_blank_if_conflicting(data, 'PersonBirthTimeBaby'),
     PersonDeathDateBaby = rationalise_blank_if_conflicting(data, 'PersonDeathDateBaby'),
     PersonDeathTimeBaby = rationalise_blank_if_conflicting(data, 'PersonDeathTimeBaby'),
-    ovsvischcat = rationalise_distinct_values(data, "OvsVisChCat"),
-    NeonatalTransferStartDate = rationalise_distinct_values_preserving_blanks(data, 'NeonatalTransferStartDate'),
-    NeonatalTransferStartTime = rationalise_distinct_values_preserving_blanks(data, 'NeonatalTransferStartTime'),
-    OrgSiteIDAdmittingNeonatal = rationalise_distinct_values_preserving_blanks(data, 'OrgSiteIDAdmittingNeonatal'),
-    NeoCritCareInd = rationalise_distinct_values_preserving_blanks(data, 'NeoCritCareInd'),
+    OvsVisChCat = rationalise_distinct_values_per_pregnancy(data, "OvsVisChCat"),
+    NeonatalTransferStartDate = rationalise_neonatal_care_info(data, 'NeonatalTransferStartDate'),
+    NeonatalTransferStartTime = rationalise_neonatal_care_info(data, 'NeonatalTransferStartTime'),
+    OrgSiteIDAdmittingNeonatal = rationalise_neonatal_care_info(data, 'OrgSiteIDAdmittingNeonatal'),
+    NeoCritCareInd = rationalise_neonatal_care_info(data, 'NeoCritCareInd'),
     Mother_PatientID = 'placeholder',
     Baby_PatientID = 'placeholder',
     PregnancyID = 'placeholder'
@@ -229,4 +230,14 @@ rationalise_blank_if_conflicting <- function(data, field_name) {
     return(NA)
   }
   return(unique_values[1])
+}
+
+rationalise_and_map_delivery_method <- function(data) {
+  return(data %>% pull(DeliveryMethodCode) %>% remove_na_and_nil_from_vector %>% unique %>% sapply(., function(x) as.numeric(x) + 1) %>% paste(., collapse=', '))
+}
+
+rationalise_neonatal_care_info <- function(data, field_name) {
+  neo_care <- data %>% select(NeonatalTransferStartDate, NeonatalTransferStartTime, OrgSiteIDAdmittingNeonatal, NeoCritCareInd) %>% unique %>%
+    filter(!is.na(NeonatalTransferStartDate) & !is.na(NeonatalTransferStartTime) & !is.na(OrgSiteIDAdmittingNeonatal) & !is.na(NeoCritCareInd)) %>%
+    pull(matches(field_name)) %>% paste(., collapse=', ')
 }

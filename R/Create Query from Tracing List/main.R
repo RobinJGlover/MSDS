@@ -3,17 +3,21 @@ library(lubridate)
 
 setwd("C:/Users/rogl2/OneDrive - NHS/Dev/R/MSDS/MSDS Project/R/Create Query from Tracing List")
 
-list <- read.csv("NDRSI-398 PREG_LOSS HES.csv") %>% mutate(
+
+{
+list <- read.csv(file.choose()) 
+colnames(list) <- tolower(colnames(list))
+list <- list %>% mutate(
   mother_query_portion = case_when(
-    !is.na(Mother.NHS) & !is.na(EDD) ~ sprintf("(pb.Person_ID_Mother = %s and abs(datediff(pb.EDDAgreed,'%s'::date)) < 30)", Mother.NHS, format(dmy(EDD), '%Y-%m-%d'))
-  ),
-  mother_query_portion_2 = case_when(
-    !is.na(Mother.NHS) & !is.na(Antenatal.Date) ~ sprintf("(pb.Person_ID_Mother = %s and '%s'::date between pb.AntenatalAppDate and pb.EDDAgreed)", Mother.NHS, format(dmy(Antenatal.Date), '%Y-%m-%d'))
-  ),
-  mother_query_portion = case_when(
-    !is.na(mother_query_portion) ~ mother_query_portion,
-    T ~ mother_query_portion_2
-  )
+    !is.na(mother_nhsnumber) & !is.na(expecteddeliverydate) ~ sprintf("(pb.Person_ID_Mother = %s and abs(datediff(pb.EDDAgreed,'%s'::date)) < 30)", mother_nhsnumber, format(dmy(expecteddeliverydate), '%Y-%m-%d'))
+  )#,
+  #mother_query_portion_2 = case_when(
+  #  !is.na(Mother.NHS) & !is.na(Antenatal.Date) ~ sprintf("(pb.Person_ID_Mother = %s and '%s'::date between pb.AntenatalAppDate and pb.EDDAgreed)", mother_nhsnumber, format(dmy(Antenatal.Date), '%Y-%m-%d'))
+  #),
+  #mother_query_portion = case_when(
+  #  !is.na(mother_query_portion) ~ mother_query_portion,
+  #  T ~ mother_query_portion_2
+  #)
 )
 
 query <- sprintf(
@@ -32,7 +36,7 @@ where bd.NHSNumberBaby in (%s)
 union
 select pb.RecordNumber, pb.UniqPregID
 from mat_pre_clear.msd101pregnancybooking pb
-where %s", list %>% filter(!is.na(Child.NHS)) %>% pull(Child.NHS) %>% paste(.,collapse=','), list %>% filter(!is.na(Child.NHS)) %>% pull(Child.NHS) %>% paste(.,collapse=','),
+where %s", list %>% filter(!is.na(child_nhsnumber)) %>% pull(child_nhsnumber) %>% paste(.,collapse=','), list %>% filter(!is.na(child_nhsnumber)) %>% pull(child_nhsnumber) %>% paste(.,collapse=','),
   list %>% filter(!is.na(mother_query_portion)) %>% pull(mother_query_portion) %>% paste(.,collapse=' OR ')) %>%
   paste0(., ") select 
   distinct -- Mother Fields --------
@@ -116,5 +120,4 @@ left join mat_pre_clear.msd301labourdelivery ld on c.RecordNumber = ld.RecordNum
 left join mat_pre_clear.msd405careactivitybaby cab on bd.RecordNumber = cab.RecordNumber and (cab.birthweight is not null or cab.MasterSnomedCTObsTerm = 'Birth weight (observable entity)')
 left join mat_pre_clear.msd402neonataladmission na on pb.RecordNumber = na.RecordNumber")
 writeClipboard(query)
-
-print(query)
+}

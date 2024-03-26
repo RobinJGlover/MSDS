@@ -19,7 +19,7 @@ source("rationalise_fields.R")
 {
   #original_data <- read.csv('NDRSI-398 BADGER - output.csv', na = "null")
   original_data <-
-    read.csv('TESTING.csv', na = "null") %>% mutate(
+    read.csv('20240325 - output.csv', na = "null") %>% mutate(
       preserved_pregnancy_id = UniqPregID,
       PersonBirthDateBaby = parse_date_time(PersonBirthDateBaby, c('dmy','ymd')),
       PersonBirthDateMother = parse_date_time(PersonBirthDateMother, c('dmy','ymd'))
@@ -31,8 +31,9 @@ source("rationalise_fields.R")
     row <- original_data[i, ]
     if (!is.na(row$NHSNumberBaby[1])) {
       row <-
-        row %>% mutate(UniqPregID = paste(UniqPregID, substring(NHSNumberBaby, 6, 10), sep =
-                                            "-"))
+        row %>% mutate(
+          UniqPregID = paste(UniqPregID, substring(NHSNumberBaby, 6, 10), sep = "-"),
+          )
       data <- rbind(data, row)
     } else {
       unique_nhs_numbers <-
@@ -47,6 +48,7 @@ source("rationalise_fields.R")
           new_row$UniqPregID[1] = paste(row$UniqPregID[1],
                                         substring(unique_nhs_numbers[j], 6, 10),
                                         sep = "-")
+          new_row$NHSNumberBaby[1] = unique_nhs_numbers[j]
           data <- rbind(data, new_row)
         }
       }
